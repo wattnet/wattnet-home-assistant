@@ -1,0 +1,15 @@
+name: wattnet-ha-dev
+
+services:
+  homeassistant:
+    build: .
+    ports:
+      - "8123:8123"
+    environment:
+      TZ: Europe/Madrid
+      WATTNET_API_BASE_URL: ${WATTNET_API_BASE_URL:-https://api.wattnet.eu/v1}
+      WATTNET_TOKEN_URL: ${WATTNET_TOKEN_URL:-https://api.wattnet.eu/token-request}
+    volumes:
+      - ./config:/config
+      - ../custom_components/wattnet:/config/custom_components/wattnet
+    restart: unless-stopped
