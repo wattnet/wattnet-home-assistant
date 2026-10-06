@@ -478,9 +478,8 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
             grid_ids, first, last_complete + timedelta(hours=1)
         )
         base = await self._async_running_total(stat_id, first - timedelta(hours=1))
+        # Not empty: the first hour is complete, so at least that one is derived.
         totals = derive_cumulative(hourly, consumption, base, last_complete)
-        if not totals:
-            return
         meta = StatisticMetaData(
             mean_type=StatisticMeanType.NONE,
             has_sum=True,
