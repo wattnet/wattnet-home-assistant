@@ -910,3 +910,49 @@ def test_nothing_in_the_integration_embeds_the_official_web_dashboard():
             assert "dashboard.wattnet.eu" not in text, path
             assert '"iframe"' not in text, path
             assert "wattnet-web" not in text, path
+
+
+# -- edge cases ---------------------------------------------------------------
+
+
+def _zone_with(**changes: Any) -> ZoneData:
+    zone = _zone()
+    fields = {
+        "entry_id": zone.entry_id,
+        "zone": zone.zone,
+        "zone_name": zone.zone_name,
+        "entity_ids": zone.entity_ids,
+        "consolidated_entity": zone.consolidated_entity,
+        "stat_ids": zone.stat_ids,
+        "grid_stat_ids": zone.grid_stat_ids,
+    }
+    return ZoneData(**{**fields, **changes})
+
+
+def test_a_graph_is_left_out_when_no_zone_has_its_statistic():
+    stats = {k: v for k, v in STATS.items() if k != "environmental_score"}
+    for zones in (
+        [_zone_with(stat_ids=stats)],
+        [_zone_with(stat_ids=stats), _zone("FR", "France")],
+    ):
+        config = build_dashboard(zones, "en")
+        graphs = _of_type(config, "statistics-graph", view=0)
+        assert [g["title"] for g in graphs][:3] == [
+            "Carbon footprint",
+            "Water footprint",
+            "Water impact",
+        ]
+    only = build_dashboard([_zone_with(stat_ids=stats)], "en")
+    titles = [g["title"] for g in _of_type(only, "statistics-graph")]
+    assert "Environmental score" not in titles and len(titles) == 3
+
+
+def test_a_consumption_section_without_known_totals_keeps_only_its_heading():
+    zone = _zone_with(grid_stat_ids={"environmental_score": "wattnet:es_other"})
+    sections = build_dashboard([zone], "en")["views"][0]["sections"]
+    consumption = next(
+        s for s in sections if s["cards"][0].get("heading") == "Your consumption"
+    )
+    assert [c["type"] for c in consumption["cards"]] == [
+        "heading"
+    ]  # no totals, no bars

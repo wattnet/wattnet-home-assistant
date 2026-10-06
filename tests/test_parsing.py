@@ -231,3 +231,38 @@ def test_nothing_is_derived_without_footprints_or_complete_hours():
 
     assert derive_cumulative([], {_h(9): 1.0}, 0.0, _h(12)) == []
     assert derive_cumulative([_hp(11, 1.0)], {_h(11): 1.0}, 0.0, _h(10)) == []
+
+
+def test_datetime_objects_are_accepted_as_timestamps_and_naive_ones_are_utc():
+    records = [
+        _record(
+            [
+                _series(
+                    True,
+                    [
+                        [datetime(2026, 10, 6, 10), 1.0],  # naive: taken as UTC
+                        [datetime(2026, 10, 6, 11, tzinfo=UTC), 2.0],
+                    ],
+                )
+            ]
+        )
+    ]
+    first, second = parse_points(records)
+    assert first.timestamp == datetime(2026, 10, 6, 10, tzinfo=UTC)
+    assert second.timestamp == datetime(2026, 10, 6, 11, tzinfo=UTC)
+    assert first.timestamp.tzinfo is not None
+
+
+def test_points_without_a_value_are_skipped():
+    records = [
+        _record(
+            [
+                _series(
+                    True,
+                    [["2026-10-06T10:00:00Z", None], ["2026-10-06T11:00:00Z", 3.0]],
+                )
+            ]
+        )
+    ]
+    (point,) = parse_points(records)
+    assert point.value == 3.0
