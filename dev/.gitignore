@@ -1,0 +1,3 @@
+.client-src/
+config/*
+!config/configuration.yaml

@@ -1,0 +1,146 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Iniciar sesión en Wattnet",
+        "description": "Wattnet ofrece la huella de carbono, la huella de agua y la puntuación ambiental de la electricidad consumida en cada zona europea.\n\nInicia sesión con tu cuenta de Wattnet. El correo debe estar ya registrado en Wattnet; si no lo está, solicita acceso en [wattnet.eu](https://wattnet.eu).",
+        "data": {
+          "email": "Correo electrónico",
+          "password": "Contraseña"
+        },
+        "data_description": {
+          "email": "El correo electrónico de tu cuenta de Wattnet.",
+          "password": "Se guarda en Home Assistant para que la integración pida un token de acceso nuevo cuando el anterior caduque."
+        }
+      },
+      "zone": {
+        "title": "Elige tu zona",
+        "description": "Elige la zona eléctrica a monitorizar. Se preselecciona la ubicación de tu casa si cae dentro de una zona de Wattnet. Puedes añadir la integración otra vez para más zonas.",
+        "data": {
+          "zone": "Zona",
+          "scope": "Alcance de la huella"
+        },
+        "data_description": {
+          "zone": "Zona de oferta eléctrica, con su nombre completo y su código.",
+          "scope": "Ciclo de vida cuenta también el impacto de construir, abastecer y mantener las centrales. Operacional cuenta solo la generación eléctrica."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Volver a iniciar sesión en Wattnet",
+        "description": "Wattnet rechazó las credenciales guardadas, por ejemplo porque cambió la contraseña. Introduce de nuevo el correo y la contraseña de tu cuenta de Wattnet.",
+        "data": {
+          "email": "Correo electrónico",
+          "password": "Contraseña"
+        },
+        "data_description": {
+          "email": "El correo electrónico de tu cuenta de Wattnet.",
+          "password": "Tu contraseña actual de Wattnet."
+        }
+      },
+      "reconfigure": {
+        "title": "Cambiar zona",
+        "description": "Elige la zona a monitorizar. Las estadísticas ya importadas de la zona anterior se conservan en Home Assistant.",
+        "data": {
+          "zone": "Zona"
+        },
+        "data_description": {
+          "zone": "Zona de oferta eléctrica, con su nombre completo y su código."
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Wattnet no aceptó este correo y contraseña. Revísalos y comprueba que el correo esté registrado en Wattnet.",
+      "cannot_connect": "No se pudo conectar con Wattnet. Revisa tu conexión a internet e inténtalo de nuevo.",
+      "already_configured": "Esta zona ya está configurada.",
+      "unknown": "Error inesperado. Consulta el registro de Home Assistant para más detalles."
+    },
+    "abort": {
+      "already_configured": "Esta zona ya está configurada.",
+      "reauth_successful": "Sesión iniciada de nuevo. La integración funciona.",
+      "reconfigure_successful": "Zona cambiada. La integración se recargó.",
+      "invalid_auth": "Wattnet no aceptó las credenciales guardadas. Usa antes la opción de reautenticación.",
+      "cannot_connect": "No se pudo conectar con Wattnet.",
+      "unknown": "Error inesperado."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de Wattnet",
+        "data": {
+          "scope": "Alcance de la huella",
+          "update_interval": "Intervalo de actualización",
+          "backfill_days": "Histórico inicial a importar",
+          "show_dashboard": "Mostrar el dashboard de Wattnet"
+        },
+        "data_description": {
+          "scope": "Ciclo de vida cuenta también construir, abastecer y mantener las centrales; operacional solo la generación. Al cambiarlo se empieza un conjunto nuevo de estadísticas.",
+          "update_interval": "Las actualizaciones se hacen a horas fijas, en cada cuarto de hora, cuando Wattnet publica un dato (cada 15 minutos), y vuelven a preguntar unos minutos si aún no ha salido. Los datos provisionales se reimportan en cada actualización hasta que Wattnet los consolide.",
+          "backfill_days": "Días de histórico que se importan la primera vez que se consulta una métrica. Usa la acción Reimportar estadísticas para cargar más después.",
+          "show_dashboard": "Añade a la barra lateral el dashboard de Wattnet, con la huella de cada zona configurada en esta instalación. Usa el logo de Wattnet y desaparece al quitar la última zona que lo pide."
+        }
+      }
+    }
+  },
+  "selector": {
+    "scope": {
+      "options": {
+        "life-cycle": "Ciclo de vida",
+        "operational": "Operacional"
+      }
+    },
+    "update_interval": {
+      "options": {
+        "15": "Cada 15 minutos",
+        "30": "Cada 30 minutos",
+        "60": "Cada hora"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "carbon_footprint": {
+        "name": "Huella de carbono"
+      },
+      "water_footprint": {
+        "name": "Huella de agua"
+      },
+      "water_impact": {
+        "name": "Impacto en agua"
+      },
+      "environmental_score": {
+        "name": "Puntuación ambiental"
+      },
+      "consolidated_until": {
+        "name": "Estadísticas consolidadas hasta"
+      }
+    }
+  },
+  "services": {
+    "reimport_statistics": {
+      "name": "Reimportar estadísticas",
+      "description": "Olvida lo importado y vuelve a descargar los últimos días de datos, sustituyendo las estadísticas. Útil tras un hueco, o para cargar más histórico que el de la importación inicial.",
+      "fields": {
+        "config_entry": {
+          "name": "Zona",
+          "description": "La zona de Wattnet a reimportar. Todas si se deja vacío."
+        },
+        "days": {
+          "name": "Días",
+          "description": "Cuántos días de histórico importar, de 1 a 90. Por defecto, el histórico inicial de las opciones."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "no_loaded_entry": {
+      "message": "Ninguna zona de Wattnet cargada coincide. Comprueba que la integración está configurada y no desactivada."
+    }
+  },
+  "issues": {
+    "api_unreachable": {
+      "title": "Wattnet no responde",
+      "description": "Wattnet no ha respondido en más de una hora, así que los datos de {zone} no están disponibles. Home Assistant sigue reintentando y se recuperará solo. Si persiste, revisa tu conexión a internet y la página de estado de Wattnet."
+    }
+  }
+}

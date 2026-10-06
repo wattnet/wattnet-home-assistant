@@ -1,0 +1,15 @@
+reimport_statistics:
+  fields:
+    config_entry:
+      required: false
+      selector:
+        config_entry:
+          integration: wattnet
+    days:
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 90
+          mode: box
+          unit_of_measurement: d

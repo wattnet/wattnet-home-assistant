@@ -1,0 +1,74 @@
+[tool.poetry]
+name = "wattnet-home-assistant"
+version = "1.0.0"
+description = "Home Assistant integration for wattnet: carbon footprint, water footprint, water impact and environmental score of electricity, as sensors and long-term statistics"
+license = "Apache-2.0"
+authors = ["Jaime Iglesias Blanco <iglesias@ifca.es>"]
+readme = "README.md"
+homepage = "https://wattnet.eu"
+repository = "https://github.com/wattnet/wattnet-home-assistant"
+documentation = "https://github.com/wattnet/wattnet-home-assistant#readme"
+keywords = [
+    "home-assistant", "hacs", "custom-component",
+    "energy", "electricity", "carbon", "carbon-footprint",
+    "water", "water-footprint", "water-impact", "environmental-score",
+    "sustainability", "wattnet",
+]
+package-mode = false
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Home Automation",
+    "Typing :: Typed",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.13,<3.15"
+
+[tool.poetry.urls]
+"Issue Tracker" = "https://github.com/wattnet/wattnet-home-assistant/issues"
+"Changelog" = "https://github.com/wattnet/wattnet-home-assistant/blob/main/CHANGELOG.md"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--tb=short"
+
+[tool.coverage.run]
+source = ["custom_components"]
+branch = true
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+# The integration is kept at full line and branch coverage: the tests fail below it.
+fail_under = 100
+show_missing = true
+
+[tool.black]
+target-version = ["py313", "py314"]
+
+[tool.isort]
+profile = "black"
+known_first_party = ["custom_components"]
+known_third_party = ["wattnet", "homeassistant"]
+
+[tool.mypy]
+python_version = "3.14"
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_optional = true
+ignore_missing_imports = true
+explicit_package_bases = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "custom_components.wattnet.*"
+disallow_untyped_defs = true
