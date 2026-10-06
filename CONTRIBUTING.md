@@ -37,6 +37,8 @@ Tests use [pytest-homeassistant-custom-component](https://github.com/MatthewFlam
 pytest
 ```
 
+The tests must keep the integration at **100 % line and branch coverage**: `pytest --cov` fails below it, and Codecov checks it on every PR. A new branch of code needs a test, including the error paths.
+
 Or run the whole tox suite (tests, lint, format, type-check and security scan):
 
 ```bash
