@@ -1,0 +1,146 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Sign in to Wattnet",
+        "description": "Wattnet provides the carbon footprint, water footprint and environmental score of the electricity consumed in each European zone.\n\nSign in with your Wattnet account. The e-mail must already be registered with Wattnet; if it is not, get access at [wattnet.eu](https://wattnet.eu).",
+        "data": {
+          "email": "E-mail",
+          "password": "Password"
+        },
+        "data_description": {
+          "email": "The e-mail address of your Wattnet account.",
+          "password": "Stored in Home Assistant so the integration can request a fresh access token whenever the previous one expires."
+        }
+      },
+      "zone": {
+        "title": "Choose your zone",
+        "description": "Pick the electricity zone to monitor. Your home location is preselected when it falls inside a Wattnet zone. You can add the integration again for more zones.",
+        "data": {
+          "zone": "Zone",
+          "scope": "Footprint scope"
+        },
+        "data_description": {
+          "zone": "Electricity bidding zone, labelled with its full name and code.",
+          "scope": "Life cycle also counts the impact of building, fuelling and maintaining the power plants. Operational only counts the electricity generation itself."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Sign in to Wattnet again",
+        "description": "Wattnet rejected the stored credentials, for example because the password changed. Enter the e-mail and password of your Wattnet account again.",
+        "data": {
+          "email": "E-mail",
+          "password": "Password"
+        },
+        "data_description": {
+          "email": "The e-mail address of your Wattnet account.",
+          "password": "Your current Wattnet password."
+        }
+      },
+      "reconfigure": {
+        "title": "Change zone",
+        "description": "Choose the zone to monitor. Statistics already imported for the previous zone are kept in Home Assistant.",
+        "data": {
+          "zone": "Zone"
+        },
+        "data_description": {
+          "zone": "Electricity bidding zone, labelled with its full name and code."
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Wattnet did not accept this e-mail and password. Check them, and that the e-mail is registered with Wattnet.",
+      "cannot_connect": "Could not reach Wattnet. Check your internet connection and try again.",
+      "already_configured": "This zone is already configured.",
+      "unknown": "Unexpected error. Check the Home Assistant log for details."
+    },
+    "abort": {
+      "already_configured": "This zone is already configured.",
+      "reauth_successful": "Signed in again. The integration is working.",
+      "reconfigure_successful": "Zone changed. The integration was reloaded.",
+      "invalid_auth": "Wattnet did not accept the stored credentials. Use the re-authentication option first.",
+      "cannot_connect": "Could not reach Wattnet.",
+      "unknown": "Unexpected error."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Wattnet options",
+        "data": {
+          "scope": "Footprint scope",
+          "update_interval": "Update interval",
+          "backfill_days": "Initial history to import",
+          "show_dashboard": "Show the Wattnet dashboard"
+        },
+        "data_description": {
+          "scope": "Life cycle also counts building, fuelling and maintaining the power plants; operational only the generation. Changing it starts a new set of statistics.",
+          "update_interval": "Updates run at fixed times, on each quarter hour, when Wattnet publishes a data point (every 15 minutes), and ask again for a few minutes if it is not out yet. Provisional data is re-imported on every update until Wattnet consolidates it.",
+          "backfill_days": "Days of history imported the first time a metric is fetched. Use the Re-import statistics action to load more later.",
+          "show_dashboard": "Adds the Wattnet dashboard to the sidebar, with the footprint of each zone set up in this installation. It uses the Wattnet logo and disappears when the last zone that asks for it is removed."
+        }
+      }
+    }
+  },
+  "selector": {
+    "scope": {
+      "options": {
+        "life-cycle": "Life cycle",
+        "operational": "Operational"
+      }
+    },
+    "update_interval": {
+      "options": {
+        "15": "Every 15 minutes",
+        "30": "Every 30 minutes",
+        "60": "Every hour"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "carbon_footprint": {
+        "name": "Carbon footprint"
+      },
+      "water_footprint": {
+        "name": "Water footprint"
+      },
+      "water_impact": {
+        "name": "Water impact"
+      },
+      "environmental_score": {
+        "name": "Environmental score"
+      },
+      "consolidated_until": {
+        "name": "Statistics consolidated until"
+      }
+    }
+  },
+  "services": {
+    "reimport_statistics": {
+      "name": "Re-import statistics",
+      "description": "Forgets what was imported and downloads the last days of data again, replacing the statistics. Useful after a gap, or to load more history than the initial import.",
+      "fields": {
+        "config_entry": {
+          "name": "Zone",
+          "description": "The Wattnet zone to re-import. Every zone when left empty."
+        },
+        "days": {
+          "name": "Days",
+          "description": "How many days of history to import, from 1 to 90. Defaults to the initial history option."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "no_loaded_entry": {
+      "message": "No loaded Wattnet zone matches. Check that the integration is set up and not disabled."
+    }
+  },
+  "issues": {
+    "api_unreachable": {
+      "title": "Wattnet is not responding",
+      "description": "Wattnet has not answered for more than an hour, so the data for {zone} is unavailable. Home Assistant keeps retrying and will recover on its own. If it persists, check your internet connection and the Wattnet status page."
+    }
+  }
+}

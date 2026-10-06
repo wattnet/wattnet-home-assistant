@@ -1,0 +1,26 @@
+{
+  "entity": {
+    "sensor": {
+      "carbon_footprint": {
+        "default": "mdi:molecule-co2"
+      },
+      "water_footprint": {
+        "default": "mdi:water"
+      },
+      "water_impact": {
+        "default": "mdi:water-alert"
+      },
+      "environmental_score": {
+        "default": "mdi:leaf-circle"
+      },
+      "consolidated_until": {
+        "default": "mdi:database-check"
+      }
+    }
+  },
+  "services": {
+    "reimport_statistics": {
+      "service": "mdi:database-refresh"
+    }
+  }
+}
