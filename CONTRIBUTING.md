@@ -99,6 +99,12 @@ Key rules:
 - `coordinator.py` fetches data, imports statistics and persists the watermark.
 - `config_flow.py`, `sensor.py` and `api.py` hold the Home Assistant glue.
 
+## Releases
+
+Versions and the changelog come from the conventional commits, through [release-please](https://github.com/googleapis/release-please). The bot opens a release PR on `main`, and merging it creates the tag and the GitHub release that HACS installs. The version is also written into `manifest.json` and `pyproject.toml`.
+
+The first release is **1.0.0**. For that, `release-please-config.json` has `"release-as": "1.0.0"` and the manifest starts at `0.0.0`, so the bot does not read the `feat` commits as a bump on top of an already published 1.0.0, which would give 1.1.0. Do not create the `v1.0.0` tag by hand. **After the 1.0.0 release is merged, remove the `release-as` line**, or every later release would be proposed as 1.0.0 again.
+
 ## Submitting a Pull Request
 
 1. Create a branch from `main` with a descriptive name:
