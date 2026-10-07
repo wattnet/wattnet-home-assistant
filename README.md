@@ -13,6 +13,7 @@
 # Home Assistant Integration
 
 [![CI](https://github.com/wattnet/wattnet-home-assistant/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/wattnet/wattnet-home-assistant/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/wattnet/wattnet-home-assistant)](https://github.com/wattnet/wattnet-home-assistant/releases)
 [![Release Please](https://github.com/wattnet/wattnet-home-assistant/actions/workflows/release-please.yml/badge.svg?branch=main)](https://github.com/wattnet/wattnet-home-assistant/actions/workflows/release-please.yml)
 [![codecov](https://codecov.io/gh/wattnet/wattnet-home-assistant/graph/badge.svg)](https://codecov.io/gh/wattnet/wattnet-home-assistant)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.11%2B-41BDF5?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
