@@ -11,4 +11,22 @@
   };
   window.customIconsets = window.customIconsets || {};
   window.customIconsets.wattnet = async () => icon;
+
+  // Home Assistant looks the icon set up when an icon is drawn and does not try
+  // again. If the sidebar or the dashboard was drawn before this script ran, the
+  // logo stays empty until the page is reloaded. Setting the icon again makes
+  // those icons draw themselves with the logo.
+  const redraw = (root) => {
+    for (const el of root.querySelectorAll("*")) {
+      if (el.localName === "ha-icon" && el.icon === "wattnet:logo") {
+        el.icon = "";
+        el.icon = "wattnet:logo";
+      }
+      if (el.shadowRoot) redraw(el.shadowRoot);
+    }
+  };
+  // The dashboard is drawn a bit after the page, so look a few times.
+  for (const delay of [0, 500, 1500, 4000]) {
+    setTimeout(() => redraw(document), delay);
+  }
 })();
