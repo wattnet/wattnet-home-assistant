@@ -12,21 +12,32 @@
   window.customIconsets = window.customIconsets || {};
   window.customIconsets.wattnet = async () => icon;
 
-  // Home Assistant looks the icon set up when an icon is drawn and does not try
-  // again. If the sidebar or the dashboard was drawn before this script ran, the
-  // logo stays empty until the page is reloaded. Setting the icon again makes
-  // those icons draw themselves with the logo.
+  // Home Assistant looks the icon set up when an icon is drawn. If the set is not
+  // there yet, it marks the icon as a legacy one and keeps it that way, so the
+  // logo stays empty until the page is reloaded. Those icons are fixed here by
+  // clearing that mark and setting the icon again so that it is looked up anew.
   const redraw = (root) => {
     for (const el of root.querySelectorAll("*")) {
-      if (el.localName === "ha-icon" && el.icon === "wattnet:logo") {
+      if (
+        el.localName === "ha-icon" &&
+        el.icon === "wattnet:logo" &&
+        (el._legacy || !el._path)
+      ) {
+        el._legacy = false;
         el.icon = "";
-        el.icon = "wattnet:logo";
+        el.updateComplete.then(() => {
+          el.icon = "wattnet:logo";
+        });
       }
       if (el.shadowRoot) redraw(el.shadowRoot);
     }
   };
-  // The dashboard is drawn a bit after the page, so look a few times.
-  for (const delay of [0, 500, 1500, 4000]) {
-    setTimeout(() => redraw(document), delay);
-  }
+  // The sidebar and the dashboard are drawn at their own pace, which can be after
+  // this script runs, so keep looking while the page settles.
+  let runs = 0;
+  const timer = setInterval(() => {
+    redraw(document);
+    if (++runs >= 60) clearInterval(timer);
+  }, 500);
+  window.addEventListener("location-changed", () => redraw(document));
 })();
