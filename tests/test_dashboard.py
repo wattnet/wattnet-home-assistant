@@ -732,7 +732,10 @@ async def test_the_script_with_the_logo_is_served_and_loaded_by_the_frontend(
 
     await _setup_with_lovelace(hass, config_entry)
 
-    assert "/wattnet_static/wattnet-icons.js" in hass.data[DATA_EXTRA_MODULE_URL].urls
+    assert any(
+        url.startswith("/wattnet_static/wattnet-icons.js?v=")
+        for url in hass.data[DATA_EXTRA_MODULE_URL].urls
+    )
     client = await hass_client()
     response = await client.get("/wattnet_static/wattnet-icons.js")
     assert response.status == 200

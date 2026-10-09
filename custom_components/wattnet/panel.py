@@ -163,7 +163,10 @@ class WattnetDashboards:
                 )
             ]
         )
-        frontend.add_extra_js_url(self.hass, ICON_SCRIPT)
+        # The file has no cache headers, so browsers may keep an old copy of it.
+        # A version in the URL makes them fetch it again when the script changes.
+        version = (folder / "wattnet-icons.js").stat().st_mtime_ns
+        frontend.add_extra_js_url(self.hass, f"{ICON_SCRIPT}?v={version}")
         self._script_ready = True
 
     def _unregister_if_empty(self) -> None:
