@@ -8,8 +8,8 @@ from typing import Any
 
 DOMAIN = "wattnet"
 
-CONF_EMAIL = "email"
-CONF_PASSWORD = "password"  # nosec B105
+CONF_CLIENT_ID = "client_id"
+CONF_CLIENT_SECRET = "client_secret"  # nosec B105
 CONF_ZONE = "zone"
 CONF_ZONE_NAME = "zone_name"
 CONF_DAYS = "days"

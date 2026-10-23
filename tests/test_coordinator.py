@@ -411,8 +411,8 @@ async def test_consolidated_until_sensor_and_diagnostics(
     )
 
     diag = await async_get_config_entry_diagnostics(hass, config_entry)
-    assert diag["entry"]["data"]["email"] == "**REDACTED**"
-    assert diag["entry"]["data"]["password"] == "**REDACTED**"
+    assert diag["entry"]["data"]["client_id"] == "**REDACTED**"
+    assert diag["entry"]["data"]["client_secret"] == "**REDACTED**"
     assert diag["entry"]["data"]["zone"] == "ES"
     assert diag["coordinator"]["consolidated_until"] == "2026-10-06T10:00:00+00:00"
     assert diag["coordinator"]["watermarks"][CARBON_ID].startswith("2026-10-06T10:00")

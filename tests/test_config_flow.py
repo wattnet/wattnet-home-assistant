@@ -10,8 +10,8 @@ from wattnet.client.exceptions import AuthenticationError, WattnetAPIError
 
 from custom_components.wattnet.const import (
     CONF_BACKFILL_DAYS,
-    CONF_EMAIL,
-    CONF_PASSWORD,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
     CONF_SCOPE,
     CONF_SHOW_DASHBOARD,
     CONF_UPDATE_INTERVAL,
@@ -32,7 +32,7 @@ async def _start(hass: HomeAssistant, user_input: dict):
     return await hass.config_entries.flow.async_configure(result["flow_id"], user_input)
 
 
-CREDS = {CONF_EMAIL: "a@b.c", CONF_PASSWORD: "pw"}
+CREDS = {CONF_CLIENT_ID: "id", CONF_CLIENT_SECRET: "secret"}
 
 
 async def test_full_flow(hass: HomeAssistant, fake_client: FakeClient):
@@ -49,11 +49,11 @@ async def test_full_flow(hass: HomeAssistant, fake_client: FakeClient):
     assert result["options"] == {CONF_SCOPE: "operational"}
 
 
-async def test_user_step_asks_only_for_email_and_password(hass: HomeAssistant):
+async def test_user_step_asks_only_for_client_id_and_secret(hass: HomeAssistant):
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
     )
-    assert list(result["data_schema"].schema) == [CONF_EMAIL, CONF_PASSWORD]
+    assert list(result["data_schema"].schema) == [CONF_CLIENT_ID, CONF_CLIENT_SECRET]
 
 
 async def test_invalid_auth(hass: HomeAssistant, fake_client: FakeClient):
@@ -86,30 +86,30 @@ async def test_zone_already_configured(
     assert result["reason"] == "already_configured"
 
 
-async def test_reauth_prefills_email_and_updates_password(
+async def test_reauth_prefills_client_id_and_updates_secret(
     hass: HomeAssistant, fake_client: FakeClient, config_entry: MockConfigEntry
 ):
     config_entry.add_to_hass(hass)
     result = await config_entry.start_reauth_flow(hass)
     assert result["step_id"] == "reauth_confirm"
     schema = result["data_schema"].schema
-    email_key = next(k for k in schema if k == CONF_EMAIL)
-    assert email_key.description == {"suggested_value": "a@b.c"}
+    client_id_key = next(k for k in schema if k == CONF_CLIENT_ID)
+    assert client_id_key.description == {"suggested_value": "id"}
 
     result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {CONF_EMAIL: "a@b.c", CONF_PASSWORD: "new-pw"}
+        result["flow_id"], {CONF_CLIENT_ID: "id", CONF_CLIENT_SECRET: "new-secret"}
     )
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reauth_successful"
     assert config_entry.data == {
-        CONF_EMAIL: "a@b.c",
-        CONF_PASSWORD: "new-pw",
+        CONF_CLIENT_ID: "id",
+        CONF_CLIENT_SECRET: "new-secret",
         CONF_ZONE: "ES",
         CONF_ZONE_NAME: "Spain",
     }
 
 
-async def test_reauth_rejects_wrong_password(
+async def test_reauth_rejects_wrong_secret(
     hass: HomeAssistant, fake_client: FakeClient, config_entry: MockConfigEntry
 ):
     async def boom():
@@ -119,7 +119,7 @@ async def test_reauth_rejects_wrong_password(
     result = await config_entry.start_reauth_flow(hass)
     fake_client.get_zones = boom  # type: ignore[method-assign]
     result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {CONF_EMAIL: "a@b.c", CONF_PASSWORD: "wrong"}
+        result["flow_id"], {CONF_CLIENT_ID: "id", CONF_CLIENT_SECRET: "wrong-secret"}
     )
     assert result["errors"] == {"base": "invalid_auth"}
 
@@ -182,7 +182,7 @@ async def test_reconfigure_changes_zone_and_title(
     assert config_entry.title == "Wattnet - France (FR)"
     assert config_entry.data[CONF_ZONE] == "FR"
     assert config_entry.data[CONF_ZONE_NAME] == "France"
-    assert config_entry.data[CONF_EMAIL] == "a@b.c"  # credentials are kept
+    assert config_entry.data[CONF_CLIENT_ID] == "id"  # credentials are kept
 
 
 async def test_reconfigure_rejects_a_zone_that_is_already_configured(
