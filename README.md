@@ -202,3 +202,5 @@ This work was developed within the [GreenDIGIT](https://greendigit-project.eu/) 
 <img src="https://github.com/wattnet/.github/raw/main/images/EN_FundedbytheEU_RGB_POS.png" alt="EU Funded Logo" width="260" align="left"/>
 <img src="https://github.com/wattnet/.github/raw/main/images/Flag_of_Switzerland.svg" alt="Swiss State Secretariat for Education, Research and Innovation (SERI)" height="50" align="left"/>
 <br clear="all"/>
+
+##### © 2026 Spanish National Research Council (CSIC). All rights reserved.
