@@ -1,6 +1,6 @@
 -r requirements_test.txt
-tox>=4.65.2
-pre-commit>=4.6.2
+tox>=4.66.0
+pre-commit>=4.7.0
 black>=26.10.1,<27.0
 isort>=9.0.2
 flake8>=7.4.1,<8
