@@ -22,7 +22,6 @@ from wattnet.client.exceptions import (
 from custom_components.wattnet.const import (
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
-    CONF_ZONE,
     DOMAIN,
     METRICS,
 )
