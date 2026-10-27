@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Iniciar sesión en Wattnet",
-        "description": "Wattnet ofrece la huella de carbono, la huella de agua y la puntuación ambiental de la electricidad consumida en cada zona europea.\n\nInicia sesión con una credencial de Wattnet: su ID de cliente y su secreto de cliente. Puedes crear una en [developer.wattnet.eu](https://developer.wattnet.eu).",
+        "description": "Wattnet ofrece la huella de carbono, la huella de agua y la puntuación ambiental de la electricidad consumida en cada zona europea.\n\nInicia sesión con una credencial de Wattnet: su ID de cliente y su secreto de cliente. Puedes crear una en [developer.wattnet.eu]({developer_portal_url}).",
         "data": {
           "client_id": "ID de cliente",
           "client_secret": "Secreto de cliente"

@@ -42,6 +42,8 @@ from .validation import vol
 
 _LOGGER = logging.getLogger(__name__)
 
+DEVELOPER_PORTAL_URL = "https://developer.wattnet.eu"
+
 AUTH_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_CLIENT_ID): selector.TextSelector(
@@ -141,6 +143,7 @@ class WattnetConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=self.add_suggested_values_to_schema(AUTH_SCHEMA, user_input),
             errors=errors,
+            description_placeholders={"developer_portal_url": DEVELOPER_PORTAL_URL},
         )
 
     async def async_step_zone(

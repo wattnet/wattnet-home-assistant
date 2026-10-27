@@ -54,6 +54,9 @@ async def test_user_step_asks_only_for_client_id_and_secret(hass: HomeAssistant)
         DOMAIN, context={"source": SOURCE_USER}
     )
     assert list(result["data_schema"].schema) == [CONF_CLIENT_ID, CONF_CLIENT_SECRET]
+    assert result["description_placeholders"] == {
+        "developer_portal_url": "https://developer.wattnet.eu"
+    }
 
 
 async def test_invalid_auth(hass: HomeAssistant, fake_client: FakeClient):
