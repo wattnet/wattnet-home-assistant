@@ -3,14 +3,14 @@
     "step": {
       "user": {
         "title": "Sign in to Wattnet",
-        "description": "Wattnet provides the carbon footprint, water footprint and environmental score of the electricity consumed in each European zone.\n\nSign in with your Wattnet account. The e-mail must already be registered with Wattnet; if it is not, get access at [wattnet.eu](https://wattnet.eu).",
+        "description": "Wattnet provides the carbon footprint, water footprint and environmental score of the electricity consumed in each European zone.\n\nSign in with a Wattnet credential: its client ID and client secret. Create one at [developer.wattnet.eu](https://developer.wattnet.eu).",
         "data": {
-          "email": "E-mail",
-          "password": "Password"
+          "client_id": "Client ID",
+          "client_secret": "Client secret"
         },
         "data_description": {
-          "email": "The e-mail address of your Wattnet account.",
-          "password": "Stored in Home Assistant so the integration can request a fresh access token whenever the previous one expires."
+          "client_id": "The client ID of your Wattnet credential.",
+          "client_secret": "Stored in Home Assistant so the integration can request a fresh access token whenever the previous one expires."
         }
       },
       "zone": {
@@ -27,14 +27,14 @@
       },
       "reauth_confirm": {
         "title": "Sign in to Wattnet again",
-        "description": "Wattnet rejected the stored credentials, for example because the password changed. Enter the e-mail and password of your Wattnet account again.",
+        "description": "Wattnet rejected the stored credentials, for example because the credential was regenerated or deleted. Enter the client ID and client secret of your Wattnet credential again.",
         "data": {
-          "email": "E-mail",
-          "password": "Password"
+          "client_id": "Client ID",
+          "client_secret": "Client secret"
         },
         "data_description": {
-          "email": "The e-mail address of your Wattnet account.",
-          "password": "Your current Wattnet password."
+          "client_id": "The client ID of your Wattnet credential.",
+          "client_secret": "The current client secret of your Wattnet credential."
         }
       },
       "reconfigure": {
@@ -49,7 +49,7 @@
       }
     },
     "error": {
-      "invalid_auth": "Wattnet did not accept this e-mail and password. Check them, and that the e-mail is registered with Wattnet.",
+      "invalid_auth": "Wattnet did not accept this client ID and client secret. Check them, and that the credential is active.",
       "cannot_connect": "Could not reach Wattnet. Check your internet connection and try again.",
       "already_configured": "This zone is already configured.",
       "unknown": "Unexpected error. Check the Home Assistant log for details."

@@ -24,8 +24,8 @@ from wattnet.client.exceptions import (
 from .api import build_client
 from .const import (
     CONF_BACKFILL_DAYS,
-    CONF_EMAIL,
-    CONF_PASSWORD,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
     CONF_SCOPE,
     CONF_SHOW_DASHBOARD,
     CONF_UPDATE_INTERVAL,
@@ -44,12 +44,12 @@ _LOGGER = logging.getLogger(__name__)
 
 AUTH_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_EMAIL): selector.TextSelector(
+        vol.Required(CONF_CLIENT_ID): selector.TextSelector(
             selector.TextSelectorConfig(
-                type=selector.TextSelectorType.EMAIL, autocomplete="username"
+                type=selector.TextSelectorType.TEXT, autocomplete="username"
             )
         ),
-        vol.Required(CONF_PASSWORD): selector.TextSelector(
+        vol.Required(CONF_CLIENT_SECRET): selector.TextSelector(
             selector.TextSelectorConfig(
                 type=selector.TextSelectorType.PASSWORD,
                 autocomplete="current-password",
@@ -129,7 +129,7 @@ class WattnetConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Ask for the e-mail and password of the Wattnet account."""
+        """Ask for the client id and secret of a Wattnet credential."""
         errors: dict[str, str] = {}
         if user_input is not None:
             errors_key = await self._async_check(user_input)
@@ -204,7 +204,8 @@ class WattnetConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="reauth_confirm",
             data_schema=self.add_suggested_values_to_schema(
-                AUTH_SCHEMA, user_input or {CONF_EMAIL: entry.data.get(CONF_EMAIL)}
+                AUTH_SCHEMA,
+                user_input or {CONF_CLIENT_ID: entry.data.get(CONF_CLIENT_ID)},
             ),
             errors=errors,
         )

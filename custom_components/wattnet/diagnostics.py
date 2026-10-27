@@ -8,9 +8,9 @@ from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.core import HomeAssistant
 
 from . import WattnetConfigEntry
-from .const import CONF_EMAIL, CONF_PASSWORD
+from .const import CONF_CLIENT_ID, CONF_CLIENT_SECRET
 
-TO_REDACT = {CONF_EMAIL, CONF_PASSWORD}
+TO_REDACT = {CONF_CLIENT_ID, CONF_CLIENT_SECRET}
 
 
 async def async_get_config_entry_diagnostics(

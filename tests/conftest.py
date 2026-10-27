@@ -11,8 +11,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from wattnet.client.exceptions import WattnetAPIError
 
 from custom_components.wattnet.const import (
-    CONF_EMAIL,
-    CONF_PASSWORD,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
     CONF_SCOPE,
     CONF_ZONE,
     CONF_ZONE_NAME,
@@ -114,8 +114,8 @@ def config_entry() -> MockConfigEntry:
         unique_id=ZONE,
         title="Wattnet - Spain (ES)",
         data={
-            CONF_EMAIL: "a@b.c",
-            CONF_PASSWORD: "pw",
+            CONF_CLIENT_ID: "id",
+            CONF_CLIENT_SECRET: "secret",
             CONF_ZONE: ZONE,
             CONF_ZONE_NAME: "Spain",
         },

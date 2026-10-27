@@ -20,8 +20,8 @@ from wattnet.client.exceptions import (
 )
 
 from custom_components.wattnet.const import (
-    CONF_EMAIL,
-    CONF_PASSWORD,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
     CONF_ZONE,
     DOMAIN,
     METRICS,
@@ -31,7 +31,7 @@ from custom_components.wattnet.parsing import HourlyPoint
 from .conftest import FakeClient, make_record, make_series, quarters
 
 UTC = timezone.utc
-CREDS = {CONF_EMAIL: "a@b.c", CONF_PASSWORD: "pw"}
+CREDS = {CONF_CLIENT_ID: "id", CONF_CLIENT_SECRET: "secret"}
 
 
 async def _setup(
@@ -242,7 +242,7 @@ async def test_reconfigure_aborts_when_the_stored_credentials_no_longer_work(
     hass: HomeAssistant, fake_client: FakeClient, config_entry: MockConfigEntry
 ) -> None:
     async def denied():
-        raise AuthenticationError("password changed")
+        raise AuthenticationError("secret regenerated")
 
     fake_client.get_zones = denied  # type: ignore[method-assign]
     config_entry.add_to_hass(hass)

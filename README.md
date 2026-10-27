@@ -32,7 +32,7 @@ The Wattnet integration brings the carbon footprint, water footprint, water impa
 - **Updates aligned with Wattnet**: they run on each quarter hour, at the second 0, so a state lands in the history as close as possible to the time of its data point instead of at an arbitrary offset from when Home Assistant started. The point of the new quarter is usually not published at that exact moment, so the integration asks again every minute for up to five minutes until it is. The exact time of the data is always in the `data_timestamp` attribute.
 - **Tolerant to short outages**: if Wattnet stops responding the last data is kept for an hour. After that the sensors become unavailable and a repair issue appears, and everything recovers by itself when the API is back.
 - **Automatic consolidation** of provisional data. Wattnet publishes recent data first as provisional (`valid: false`) and later consolidates it (`valid: true`, immutable). The integration keeps re-importing the provisional hours until Wattnet consolidates them, replacing the earlier values.
-- **Config flow** with e-mail and password authentication (the client renews its short-lived token by itself, so the integration never stops working when a token expires), zone selection preseeded from your home location, re-authentication, reconfiguration (change zone without losing the entry) and options. Entries are named after the zone, for example `Wattnet - Spain (ES)`.
+- **Config flow** with client ID and client secret authentication (the client renews its short-lived token by itself, so the integration never stops working when a token expires), zone selection preseeded from your home location, re-authentication, reconfiguration (change zone without losing the entry) and options. Entries are named after the zone, for example `Wattnet - Spain (ES)`.
 - **Fully async**, sharing Home Assistant's HTTP session through `AsyncWattnetRawClient`, with the metrics queried concurrently.
 - **Diagnostics and an action** to re-import history: see [Actions](#actions) and the diagnostics download in the device page.
 
@@ -52,7 +52,7 @@ Copy the `custom_components/wattnet` folder of this repository into the `custom_
 
 Go to **Settings > Devices & services > Add integration** and search for **Wattnet**.
 
-1. Sign in with the **e-mail and password** of your Wattnet account (the e-mail must be registered with Wattnet, see the [client documentation](https://github.com/wattnet/wattnet-client-python#authentication)). Static API tokens are not supported on purpose: they expire, while the e-mail and password let the integration request a fresh token whenever it needs one.
+1. Sign in with the **client ID and client secret** of a Wattnet credential (create one at [developer.wattnet.eu](https://developer.wattnet.eu), see the [client documentation](https://github.com/wattnet/wattnet-client-python#authentication)). Static API tokens are not supported on purpose: they expire, while a credential lets the integration request a fresh token whenever it needs one.
 2. Pick the **zone** to monitor. Your home location is preselected when it falls inside a Wattnet zone. Pick the **footprint scope** (`life-cycle` or `operational`).
 
 One entry is created per zone. Add the integration again to monitor more zones.
