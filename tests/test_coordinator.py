@@ -366,7 +366,7 @@ async def test_quarter_hour_points_are_averaged_per_hour(
     values = [100.0, 120.0, 140.0, 160.0]
     points = [
         [datetime(2026, 10, 6, 9, m, tzinfo=timezone.utc).isoformat(), v]
-        for m, v in zip((0, 15, 30, 45), values)
+        for m, v in zip((0, 15, 30, 45), values, strict=True)
     ]
     fake_client.window = _carbon(
         [make_record([make_series(True, points)], footprint_type="carbon")]

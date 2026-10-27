@@ -71,11 +71,10 @@ We enforce a consistent style automatically. Before opening a PR, run:
 
 ```bash
 # Format code
-black custom_components tests
-isort custom_components tests
+ruff format custom_components tests
 
 # Lint
-flake8 custom_components
+ruff check custom_components
 
 # Type-check
 mypy custom_components
@@ -87,8 +86,8 @@ bandit -r custom_components
 All of these also run via pre-commit on every commit and are verified in CI.
 
 Key rules:
-- Line length: 88 characters (Black default).
-- Import order: standard library, third-party, first-party (`isort` with Black profile).
+- Line length: 88 characters (Ruff format default).
+- Import order: standard library, third-party, first-party (enforced by Ruff's isort rules).
 - Docstrings are required on all public modules, classes and functions of `custom_components`.
 - Commit messages must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`).
 - User-facing text goes through translations: update both `translations/en.json` and `translations/es.json`.

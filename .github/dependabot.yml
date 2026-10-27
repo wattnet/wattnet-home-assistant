@@ -1,26 +1,48 @@
 version: 2
+# Keep the pip entry for Python projects. For Node projects replace it with the npm entry below; add docker if the repository ships a Dockerfile.
 updates:
-    - package-ecosystem: pip
-      directory: /
-      schedule:
-          interval: weekly
-          day: monday
-      commit-message:
-          prefix: "build(deps)"
-      open-pull-requests-limit: 5
-      groups:
-          dev-dependencies:
-              dependency-type: development
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "build(deps)"
+    open-pull-requests-limit: 5
+    groups:
+      dev-dependencies:
+        dependency-type: development
 
-    - package-ecosystem: github-actions
-      directory: /
-      schedule:
-          interval: weekly
-          day: monday
-      commit-message:
-          prefix: "ci(deps)"
-      open-pull-requests-limit: 5
-      groups:
-          github-actions:
-              patterns:
-                  - "*"
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: "ci(deps)"
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # - package-ecosystem: npm
+  #   directory: /
+  #   schedule:
+  #     interval: weekly
+  #     day: monday
+  #   commit-message:
+  #     prefix: "build(deps)"
+  #   open-pull-requests-limit: 5
+  #   groups:
+  #     npm-dependencies:
+  #       patterns:
+  #         - "*"
+
+  # - package-ecosystem: docker
+  #   directory: /
+  #   schedule:
+  #     interval: weekly
+  #     day: monday
+  #   commit-message:
+  #     prefix: "build(deps)"

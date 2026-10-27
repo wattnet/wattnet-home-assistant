@@ -1,16 +1,16 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
 We provide security fixes for the following versions:
 
 | Version | Supported |
-|---------|-----------|
-| 1.x     | ✅        |
+| --- | --- |
+| 1.x | Yes |
 
 Older versions do not receive security updates. Please upgrade to the latest release.
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
@@ -21,13 +21,13 @@ If you discover a vulnerability, report it privately by emailing:
 Include as much of the following as possible:
 
 - A description of the vulnerability and its potential impact.
-- The affected version(s).
-- Steps to reproduce or a proof-of-concept.
+- The affected version or versions.
+- Steps to reproduce or a proof of concept.
 - Any suggested fix, if you have one.
 
-You will receive an acknowledgement within **3 business days**. We aim to provide a resolution timeline within **14 days** of the initial report. We will keep you informed throughout the process.
+You will receive an acknowledgment within **3 business days**. We aim to provide a resolution timeline within **14 days** of the initial report. We will keep you informed throughout the process.
 
-## Disclosure Policy
+## Disclosure policy
 
 We follow a coordinated disclosure model:
 

@@ -1,39 +1,32 @@
 repos:
-    - repo: https://github.com/compilerla/conventional-pre-commit
-      rev: v3.6.0
-      hooks:
-          - id: conventional-pre-commit
-            stages: [commit-msg]
-            args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert]
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert]
 
-    - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v5.0.0
-      hooks:
-          - id: trailing-whitespace
-          - id: end-of-file-fixer
-          - id: check-yaml
-          - id: check-toml
-          - id: check-merge-conflict
-          - id: debug-statements
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: debug-statements
 
-    - repo: local
-      hooks:
-          - id: isort
-            name: isort
-            entry: isort
-            language: system
-            types: [python]
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: ruff check --fix
+        language: system
+        types: [python]
+        files: ^custom_components/
 
-          - id: black
-            name: black
-            entry: black
-            language: system
-            types: [python]
-
-          - id: flake8
-            name: flake8
-            entry: flake8
-            language: system
-            types: [python]
-            pass_filenames: false
-            args: [custom_components]
+      - id: ruff-format
+        name: ruff format
+        entry: ruff format
+        language: system
+        types: [python]

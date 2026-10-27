@@ -35,7 +35,9 @@ def call(method, path, body=None, token=None, form=False):
             raw = resp.read()
             return json.loads(raw) if raw else None
     except urllib.error.HTTPError as err:
-        raise SystemExit(f"{method} {path} -> {err.code}: {err.read().decode()}")
+        raise SystemExit(
+            f"{method} {path} -> {err.code}: {err.read().decode()}"
+        ) from err
 
 
 def wait_for_ha():
@@ -64,7 +66,11 @@ def login():
     flow = call(
         "POST",
         "/auth/login_flow",
-        {"client_id": CLIENT_ID, "handler": ["homeassistant", None], "redirect_uri": CLIENT_ID},
+        {
+            "client_id": CLIENT_ID,
+            "handler": ["homeassistant", None],
+            "redirect_uri": CLIENT_ID,
+        },
     )
     result = call(
         "POST",
@@ -81,7 +87,13 @@ def get_token():
         result = call(
             "POST",
             "/api/onboarding/users",
-            {"client_id": CLIENT_ID, "name": "Dev", "username": USER, "password": PASSWORD, "language": "en"},
+            {
+                "client_id": CLIENT_ID,
+                "name": "Dev",
+                "username": USER,
+                "password": PASSWORD,
+                "language": "en",
+            },
         )
         token = exchange(result["auth_code"])
         print(f"Created user {USER} / {PASSWORD}")
@@ -104,4 +116,6 @@ if __name__ == "__main__":
     wait_for_ha()
     get_token()
     print(f"\nReady at {BASE}  (login: {USER} / {PASSWORD})")
-    print("Add the integration: Settings > Devices & services > Add integration > Wattnet")
+    print(
+        "Add the integration: Settings > Devices & services > Add integration > Wattnet"
+    )
