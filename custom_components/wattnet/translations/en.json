@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Sign in to Wattnet",
-        "description": "Wattnet provides the carbon footprint, water footprint and environmental score of the electricity consumed in each European zone.\n\nSign in with a Wattnet credential: its client ID and client secret. Create one at [developer.wattnet.eu]({developer_portal_url}).",
+        "description": "Wattnet provides the carbon footprint, water footprint and environmental score of the electricity consumed in each European zone.\n\nSign in with a Wattnet credential: its client ID and client secret. You can get one by creating a free account at [developers.wattnet.eu]({developer_portal_url}).",
         "data": {
           "client_id": "Client ID",
           "client_secret": "Client secret"

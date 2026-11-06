@@ -53,7 +53,7 @@ Copy the `custom_components/wattnet` folder of this repository into the `custom_
 
 Go to **Settings > Devices & services > Add integration** and search for **Wattnet**.
 
-1. Sign in with the **client ID and client secret** of a Wattnet credential (create one at [developer.wattnet.eu](https://developer.wattnet.eu), see the [client documentation](https://github.com/wattnet/wattnet-client-python#authentication)). Static API tokens are not supported on purpose: they expire, while a credential lets the integration request a fresh token whenever it needs one.
+1. Sign in with the **client ID and client secret** of a Wattnet credential (get one by creating a free account at [developers.wattnet.eu](https://developers.wattnet.eu), see the [client documentation](https://github.com/wattnet/wattnet-client-python#authentication)). Static API tokens are not supported on purpose: they expire, while a credential lets the integration request a fresh token whenever it needs one.
 2. Pick the **zone** to monitor. Your home location is preselected when it falls inside a Wattnet zone. Pick the **footprint scope** (`life-cycle` or `operational`).
 
 One entry is created per zone. Add the integration again to monitor more zones.

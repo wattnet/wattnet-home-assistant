@@ -55,7 +55,7 @@ async def test_user_step_asks_only_for_client_id_and_secret(hass: HomeAssistant)
     )
     assert list(result["data_schema"].schema) == [CONF_CLIENT_ID, CONF_CLIENT_SECRET]
     assert result["description_placeholders"] == {
-        "developer_portal_url": "https://developer.wattnet.eu"
+        "developer_portal_url": "https://developers.wattnet.eu"
     }
 
 
