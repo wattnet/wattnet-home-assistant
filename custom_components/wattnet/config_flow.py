@@ -42,7 +42,7 @@ from .validation import vol
 
 _LOGGER = logging.getLogger(__name__)
 
-DEVELOPER_PORTAL_URL = "https://developer.wattnet.eu"
+DEVELOPER_PORTAL_URL = "https://developers.wattnet.eu"
 
 AUTH_SCHEMA = vol.Schema(
     {
