@@ -1,6 +1,6 @@
 -r requirements_test.txt
 tox>=4.67.13
 pre-commit>=4.7.0
-ruff>=0.17.4
+ruff>=0.17.5
 bandit>=1.9.4
 mypy>=2.4.1
