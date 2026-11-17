@@ -73,10 +73,11 @@ def parse_points(
         for series in record.get("series", []):
             valid = bool(series.get("valid", False))
             status = str(series.get("zone_status", "missing"))
-            for raw_ts, value in series.get("values", []):
+            for item in series.get("points", []):
+                value = item["value"]
                 if value is None:
                     continue
-                ts = _parse_ts(raw_ts)
+                ts = _parse_ts(item["timestamp"])
                 current = by_ts.get(ts)
                 if current is not None and current.valid and not valid:
                     continue

@@ -9,6 +9,8 @@ from custom_components.wattnet.parsing import (
     to_hourly,
 )
 
+from .conftest import make_series
+
 UTC = timezone.utc
 
 
@@ -17,7 +19,7 @@ def _record(series, **fields):
 
 
 def _series(valid, values, status="complete"):
-    return {"valid": valid, "zone_status": status, "values": values}
+    return make_series(valid, values, status)
 
 
 def _quarters(hour, value, count=4):

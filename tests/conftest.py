@@ -30,8 +30,12 @@ def make_record(series: list[dict[str, Any]], **fields: Any) -> dict[str, Any]:
 def make_series(
     valid: bool, values: list[list[Any]], status: str = "complete"
 ) -> dict[str, Any]:
-    """Build one `(valid, zone_status)` series."""
-    return {"valid": valid, "zone_status": status, "values": values}
+    """Build one `(valid, zone_status)` series from `[timestamp, value]` pairs."""
+    points = [
+        {"timestamp": ts, "value": value, "updated_at": "2026-10-06T12:00:00+00:00"}
+        for ts, value in values
+    ]
+    return {"valid": valid, "zone_status": status, "points": points}
 
 
 class FakeClient:
