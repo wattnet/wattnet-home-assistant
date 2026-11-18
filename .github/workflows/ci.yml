@@ -33,7 +33,7 @@ jobs:
           restore-keys: pip-3.14-
 
       - name: Install tox
-        run: pip install tox tox-gh-actions
+        run: pip install "tox<4.67.14" tox-gh-actions
 
       - name: Run tox
         run: tox
