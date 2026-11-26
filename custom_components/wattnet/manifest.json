@@ -1,14 +1,23 @@
 {
   "domain": "wattnet",
   "name": "Wattnet",
-  "after_dependencies": ["energy", "frontend", "http", "lovelace"],
+  "after_dependencies": [
+    "energy",
+    "frontend",
+    "http",
+    "lovelace"
+  ],
   "codeowners": [],
   "config_flow": true,
-  "dependencies": ["recorder"],
+  "dependencies": [
+    "recorder"
+  ],
   "documentation": "https://github.com/wattnet/wattnet-home-assistant",
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/wattnet/wattnet-home-assistant/issues",
-  "requirements": ["wattnet-client>=1.0.0"],
+  "requirements": [
+    "wattnet-client>=1.0.0"
+  ],
   "version": "1.0.0"
 }
