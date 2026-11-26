@@ -267,3 +267,145 @@ async def test_the_integration_still_works_when_the_dashboard_module_cannot_load
     assert config_entry.state is ConfigEntryState.LOADED
     assert "The Wattnet dashboard is not available in this version" in caplog.text
     assert hass.states.get("sensor.wattnet_spain_es_carbon_footprint") is not None
+
+
+# -- the limits of the access level of the credential -------------------------
+
+NOW = "2026-10-06 12:30:00+00:00"
+OLDEST = datetime(2026, 9, 29, 13, tzinfo=UTC)  # 7 days back, first full hour inside
+
+
+def _limit(code: str) -> WattnetAPIError:
+    return WattnetAPIError("beyond the access level", status_code=403, code=code)
+
+
+def _refuse_windows_before(
+    fake_client: FakeClient, oldest: datetime, code: str
+) -> None:
+    """Refuse, as the API does for a Free credential, history older than ``oldest``."""
+    original = fake_client.get_footprints
+
+    async def limited(**kwargs):
+        if "start" in kwargs and kwargs["start"] < oldest:
+            fake_client.calls.append(("get_footprints", kwargs))
+            raise _limit(code)
+        return await original(**kwargs)
+
+    fake_client.get_footprints = limited  # type: ignore[method-assign]
+
+
+def _carbon_starts(fake_client: FakeClient) -> list[datetime]:
+    return [
+        c["start"]
+        for m, c in fake_client.calls
+        if m == "get_footprints"
+        and c.get("footprint_type") == "carbon"
+        and "start" in c
+    ]
+
+
+async def test_an_access_level_limit_does_not_ask_to_sign_in_again(
+    recorder_mock: Recorder,
+    hass: HomeAssistant,
+    fake_client: FakeClient,
+    config_entry: MockConfigEntry,
+) -> None:
+    fake_client.error = _limit("endpoint_group_not_allowed")
+    await _setup(hass, config_entry)
+
+    assert config_entry.state is ConfigEntryState.SETUP_RETRY
+    assert hass.config_entries.flow.async_progress_by_handler(DOMAIN) == []
+
+
+async def test_a_403_without_a_limit_code_still_asks_to_sign_in_again(
+    recorder_mock: Recorder,
+    hass: HomeAssistant,
+    fake_client: FakeClient,
+    config_entry: MockConfigEntry,
+) -> None:
+    fake_client.error = WattnetAPIError("forbidden", status_code=403)
+    await _setup(hass, config_entry)
+
+    flows = hass.config_entries.flow.async_progress_by_handler(DOMAIN)
+    assert [f["context"]["source"] for f in flows] == ["reauth"]
+
+
+async def test_history_beyond_the_access_level_is_asked_again_from_the_oldest_hour(
+    recorder_mock: Recorder,
+    hass: HomeAssistant,
+    freezer,
+    fake_client: FakeClient,
+    config_entry: MockConfigEntry,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    freezer.move_to(NOW)
+    _refuse_windows_before(fake_client, OLDEST, "history_limit_exceeded")
+    await _setup(hass, config_entry)
+    fake_client.calls.clear()
+
+    # A reimport of 30 days with a credential that reaches 7.
+    with caplog.at_level(logging.WARNING):
+        await hass.services.async_call(
+            DOMAIN, "reimport_statistics", {"days": 30}, blocking=True
+        )
+        await hass.async_block_till_done(wait_background_tasks=True)
+
+    starts = _carbon_starts(fake_client)
+    # The chunks older than 7 days are refused; the one that reaches the limit is
+    # asked again from the oldest hour allowed, and the newer ones go through.
+    assert OLDEST in starts
+    assert all(s >= OLDEST for s in starts[starts.index(OLDEST) :])
+    assert "does not reach" in caplog.text
+    assert config_entry.state is ConfigEntryState.LOADED
+    assert hass.config_entries.flow.async_progress_by_handler(DOMAIN) == []
+
+
+async def test_a_window_refused_by_another_limit_is_skipped(
+    recorder_mock: Recorder,
+    hass: HomeAssistant,
+    freezer,
+    fake_client: FakeClient,
+    config_entry: MockConfigEntry,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    freezer.move_to(NOW)
+    _fail_only_the_window(fake_client, _limit("range_limit_exceeded"))
+    with caplog.at_level(logging.WARNING):
+        await _setup(hass, config_entry)
+
+    assert config_entry.state is ConfigEntryState.LOADED
+    assert "Skipping carbon_footprint" in caplog.text
+    assert hass.config_entries.flow.async_progress_by_handler(DOMAIN) == []
+    assert config_entry.runtime_data.consolidated_until is None  # nothing imported
+
+
+async def test_history_still_refused_from_the_oldest_hour_is_skipped(
+    recorder_mock: Recorder,
+    hass: HomeAssistant,
+    freezer,
+    fake_client: FakeClient,
+    config_entry: MockConfigEntry,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A level that reaches less than the Free one: asked again once, then skipped."""
+    freezer.move_to(NOW)
+    _fail_only_the_window(fake_client, _limit("history_limit_exceeded"))
+    await _setup(hass, config_entry)
+    fake_client.calls.clear()
+
+    with caplog.at_level(logging.WARNING):
+        await hass.services.async_call(
+            DOMAIN, "reimport_statistics", {"days": 10}, blocking=True
+        )
+        await hass.async_block_till_done(wait_background_tasks=True)
+
+    assert "does not reach" in caplog.text
+    assert "Skipping carbon_footprint" in caplog.text
+    assert hass.config_entries.flow.async_progress_by_handler(DOMAIN) == []
+
+
+def test_ceil_hour_keeps_a_full_hour() -> None:
+    from custom_components.wattnet.coordinator import ceil_hour
+
+    assert ceil_hour(OLDEST) == OLDEST
+    assert ceil_hour(datetime(2026, 9, 29, 12, 35, tzinfo=UTC)) == OLDEST

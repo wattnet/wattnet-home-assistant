@@ -43,6 +43,7 @@ from wattnet.client import AsyncWattnetRawClient
 from wattnet.client.exceptions import AuthenticationError, WattnetAPIError, WattnetError
 
 from .const import (
+    ACCESS_LIMIT_CODES,
     API_GRACE,
     CHUNK_DAYS,
     CONF_BACKFILL_DAYS,
@@ -54,7 +55,10 @@ from .const import (
     DEFAULT_SCOPE,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
+    FIRST_SYNC_SLACK,
+    FREE_HISTORY_DAYS,
     GRID_LOOKBACK,
+    HISTORY_LIMIT_CODE,
     ISSUE_API_UNREACHABLE,
     METRICS,
     POLL_OFFSET_MINUTES,
@@ -76,6 +80,33 @@ from .parsing import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class AccessLimitExceeded(UpdateFailed):
+    """The query goes beyond the access level of the credential (403 with a code).
+
+    It is an ``UpdateFailed``, never ``ConfigEntryAuthFailed``: signing in again
+    with the same credential would not change it.
+    """
+
+    def __init__(self, message: str, code: str) -> None:
+        """Keep the code the API gave, to tell which limit it was."""
+        super().__init__(message)
+        self.code = code
+
+
+def ceil_hour(moment: datetime) -> datetime:
+    """Round up to the next full hour (unchanged when already on one)."""
+    floor = moment.replace(minute=0, second=0, microsecond=0)
+    return floor if floor == moment else floor + timedelta(hours=1)
+
+
+def oldest_allowed_start(now: datetime, days: int) -> datetime:
+    """First hour a query of the last ``days`` days may start at.
+
+    It is inside the history the API allows even when its clock is a bit ahead.
+    """
+    return ceil_hour(now - timedelta(days=days) + FIRST_SYNC_SLACK)
 
 
 def statistic_id(zone: str, metric: Metric, scope: str) -> str:
@@ -222,6 +253,10 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
         except AuthenticationError as err:
             raise ConfigEntryAuthFailed(str(err)) from err
         except WattnetAPIError as err:
+            if err.status_code == 403 and err.code in ACCESS_LIMIT_CODES:
+                raise AccessLimitExceeded(
+                    f"Beyond the access level of the credential: {err}", err.code
+                ) from err
             if err.status_code in (401, 403):
                 raise ConfigEntryAuthFailed(str(err)) from err
             if err.status_code == 404:
@@ -230,6 +265,34 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
             raise UpdateFailed(f"Wattnet API error: {err}") from err
         except WattnetError as err:
             raise UpdateFailed(f"Wattnet error: {err}") from err
+
+    async def _fetch_window(
+        self, metric: Metric, start: datetime, end: datetime, now: datetime
+    ) -> list[dict[str, Any]]:
+        """Fetch a window of history, within the access level of the credential.
+
+        A window that starts before the history the access level reaches (Home
+        Assistant was off for long, or a reimport of many days with a Free
+        credential) is asked again from the oldest hour allowed. A window refused
+        for any other limit of the access level is skipped with a warning.
+        """
+        try:
+            return await self._fetch(metric, start, end)
+        except AccessLimitExceeded as err:
+            oldest = oldest_allowed_start(now, FREE_HISTORY_DAYS)
+            if err.code == HISTORY_LIMIT_CODE and start < oldest < end:
+                _LOGGER.warning(
+                    "The access level of the credential does not reach %s for %s: "
+                    "importing from %s",
+                    start,
+                    metric.key,
+                    oldest,
+                )
+                return await self._fetch_window(metric, oldest, end, now)
+            _LOGGER.warning(
+                "Skipping %s from %s to %s: %s", metric.key, start, end, err
+            )
+            return []
 
     async def _async_update_data(self) -> dict[str, Point | None]:
         now = datetime.now(timezone.utc)
@@ -351,11 +414,11 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
         self, metric: Metric, now: datetime, days: int | None = None
     ) -> datetime:
         raw = self._watermarks.get(self._mark_key(metric))
-        if raw:
-            mark = datetime.fromisoformat(raw)
-        else:
-            mark = now - timedelta(days=days or self._backfill_days)
-        mark -= timedelta(hours=WATERMARK_MARGIN_HOURS)
+        if not raw:
+            # Nothing imported yet: the window of the last days, starting inside
+            # the history the access level allows (no margin before it).
+            return oldest_allowed_start(now, days or self._backfill_days)
+        mark = datetime.fromisoformat(raw) - timedelta(hours=WATERMARK_MARGIN_HOURS)
         return mark.replace(minute=0, second=0, microsecond=0)
 
     async def _async_sync_statistics(
@@ -376,7 +439,7 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
         cursor = start
         while cursor < now:
             chunk_end = min(cursor + timedelta(days=CHUNK_DAYS), now)
-            records.extend(await self._fetch(metric, cursor, chunk_end))
+            records.extend(await self._fetch_window(metric, cursor, chunk_end, now))
             cursor = chunk_end
 
         # Parse once so a point repeated across chunk boundaries is not counted twice.

@@ -26,7 +26,9 @@ CONF_SHOW_DASHBOARD = "show_dashboard"
 SCOPES = ["life-cycle", "operational"]
 DEFAULT_SCOPE = "life-cycle"
 DEFAULT_UPDATE_INTERVAL = 15  # minutes, the resolution of the data
-DEFAULT_BACKFILL_DAYS = 7
+# How far back the Free access level reaches: the default backfill stays inside it.
+FREE_HISTORY_DAYS = 7
+DEFAULT_BACKFILL_DAYS = FREE_HISTORY_DAYS
 
 # Wattnet publishes one data point every 15 minutes.
 RESOLUTION_MINUTES = 15
@@ -59,6 +61,25 @@ GRID_LOOKBACK = timedelta(days=3)
 
 # Hours re-requested before the watermark as a safety margin.
 WATERMARK_MARGIN_HOURS = 1
+
+# The first import starts this long after the oldest moment it may ask, so the
+# clocks of Home Assistant and of the API never put it outside the history of
+# the Free access level.
+FIRST_SYNC_SLACK = timedelta(minutes=5)
+
+# The API answers 403 with one of these codes when a query goes beyond the access
+# level of the credential. The credential is fine, so it is not a reason to sign
+# in again: the window is narrowed or skipped instead.
+ACCESS_LIMIT_CODES = frozenset(
+    {
+        "history_limit_exceeded",
+        "range_limit_exceeded",
+        "zone_limit_exceeded",
+        "forecast_not_allowed",
+        "endpoint_group_not_allowed",
+    }
+)
+HISTORY_LIMIT_CODE = "history_limit_exceeded"
 
 STORAGE_VERSION = 1
 
