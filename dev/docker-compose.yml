@@ -8,7 +8,9 @@ services:
     environment:
       TZ: Europe/Madrid
       WATTNET_API_BASE_URL: ${WATTNET_API_BASE_URL:-https://api.wattnet.eu/v1}
-      WATTNET_TOKEN_URL: ${WATTNET_TOKEN_URL:-https://api.wattnet.eu/token-request}
+      # The credential gets its token from the OpenID Connect issuer of the realm
+      # (client_credentials); the token endpoint is read from its discovery document.
+      WATTNET_ISSUER_URL: ${WATTNET_ISSUER_URL:-https://auth.wattnet.eu/realms/wattnet}
     volumes:
       - ./config:/config
       - ../custom_components/wattnet:/config/custom_components/wattnet
