@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/wattnet/wattnet-home-assistant/compare/v1.0.0...v1.0.0) (2026-11-26)
+
+
+### Documentation
+
+* describe the Marketplace installation steps in the README ([#29](https://github.com/wattnet/wattnet-home-assistant/issues/29)) ([0508620](https://github.com/wattnet/wattnet-home-assistant/commit/0508620ed879a892e503eb2bfe8ab1956dba86c6))
+
 ## 1.0.0 (2026-11-26)
 
 
