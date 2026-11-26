@@ -206,11 +206,9 @@ async def test_first_run_backfills_configured_days(
         and kwargs.get("footprint_type") == "carbon"
         and "start" in kwargs
     ]
-    # 7 days plus the safety margin hour, requested in contiguous 7-day chunks.
-    assert starts == [
-        datetime(2026, 9, 29, 11, tzinfo=timezone.utc),
-        datetime(2026, 10, 6, 11, tzinfo=timezone.utc),
-    ]
+    # 7 days, starting at the first full hour inside them (12:30 + 5 min, rounded
+    # up), so a Free credential, which reaches 7 days back, is never refused.
+    assert starts == [datetime(2026, 9, 29, 13, tzinfo=timezone.utc)]
 
 
 async def test_watermark_survives_restart(
@@ -496,7 +494,7 @@ async def test_changing_scope_starts_a_fresh_history(
     ]
     # The operational statistic has no watermark, so it backfills the full window
     # instead of resuming where the life-cycle one stopped.
-    assert starts[0] == datetime(2026, 9, 29, 11, tzinfo=timezone.utc)
+    assert starts[0] == datetime(2026, 9, 29, 13, tzinfo=timezone.utc)
 
 
 async def test_reimport_action_replaces_history(
@@ -534,7 +532,8 @@ async def test_reimport_action_replaces_history(
         and c.get("footprint_type") == "carbon"
         and "start" in c
     ]
-    assert windowed == [datetime(2026, 10, 4, 11, tzinfo=timezone.utc)]  # 2 days back
+    # 2 days back, from the first full hour inside them.
+    assert windowed == [datetime(2026, 10, 4, 13, tzinfo=timezone.utc)]
     assert (await _stats(hass, CARBON_ID))[
         datetime(2026, 10, 6, 9, tzinfo=timezone.utc)
     ] == 90.0
