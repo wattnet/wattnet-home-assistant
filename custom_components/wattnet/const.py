@@ -40,6 +40,10 @@ CHUNK_DAYS = 7
 # and a repair issue is raised. Shorter outages keep serving the last data.
 API_GRACE = timedelta(hours=1)
 ISSUE_API_UNREACHABLE = "api_unreachable"
+# Raised when an import asked more history than the access level of the credential
+# reaches, so the user sees it and where to get more.
+ISSUE_HISTORY_LIMITED = "history_limited"
+DEVELOPER_PORTAL_URL = "https://developers.wattnet.eu"
 
 # Updates run at the same minutes of each hour, right on each slot of Wattnet's
 # 15-minute resolution (second 0), so that the state written to the history

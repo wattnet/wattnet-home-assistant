@@ -153,7 +153,7 @@ Use the entry of the zone where your home is, since the footprint of a kWh depen
 
 ### `wattnet.reimport_statistics`
 
-Forgets what was imported and downloads the last days of data again, replacing the statistics. Use it after a gap, or to load more history than the initial import. A credential only reaches the history its access level allows (the last 7 days with a Free account): an older part is skipped and the import starts at the oldest hour allowed, without asking to sign in again.
+Forgets what was imported and downloads the last days of data again, replacing the statistics. Use it after a gap, or to load more history than the initial import. A credential only reaches the history its access level allows (the last 7 days with a Free account): an older part is skipped and the import starts at the oldest hour allowed, without asking to sign in again. **Settings > Repairs** shows it, with the oldest date the credential reaches and a link to the developer portal to ask for more.
 
 | Field          | Required | Description                                                          |
 | -------------- | -------- | -------------------------------------------------------------------- |

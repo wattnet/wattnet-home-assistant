@@ -12,6 +12,7 @@ import pytest
 from homeassistant.components.recorder import Recorder
 from homeassistant.config_entries import ConfigEntryState, ConfigFlowResult
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from wattnet.client.exceptions import (
     AuthenticationError,
@@ -355,9 +356,39 @@ async def test_history_beyond_the_access_level_is_asked_again_from_the_oldest_ho
     # asked again from the oldest hour allowed, and the newer ones go through.
     assert OLDEST in starts
     assert all(s >= OLDEST for s in starts[starts.index(OLDEST) :])
-    assert "does not reach" in caplog.text
+    # One warning per refused metric (the fake refuses the two footprints), for the
+    # window that crosses the limit; the windows wholly older are only debug.
+    assert caplog.text.count("does not reach") == 2
+    assert "Skipping" not in caplog.text
     assert config_entry.state is ConfigEntryState.LOADED
     assert hass.config_entries.flow.async_progress_by_handler(DOMAIN) == []
+
+    # Repairs shows it, with the oldest hour the credential reaches.
+    issue = ir.async_get(hass).async_get_issue(
+        DOMAIN, f"history_limited_{config_entry.entry_id}"
+    )
+    assert issue is not None
+    assert issue.severity is ir.IssueSeverity.WARNING
+    assert issue.translation_placeholders == {
+        "zone": "Spain (ES)",
+        "oldest": "2026-09-29 13:00 UTC",
+    }
+    assert issue.learn_more_url == "https://developers.wattnet.eu"
+
+    # A reimport within the access level clears it, and so does removing the entry.
+    await hass.services.async_call(
+        DOMAIN, "reimport_statistics", {"days": 3}, blocking=True
+    )
+    await hass.async_block_till_done(wait_background_tasks=True)
+    issue_id = f"history_limited_{config_entry.entry_id}"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
+    await hass.services.async_call(
+        DOMAIN, "reimport_statistics", {"days": 30}, blocking=True
+    )
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is not None
+    assert await hass.config_entries.async_unload(config_entry.entry_id)
+    assert ir.async_get(hass).async_get_issue(DOMAIN, issue_id) is None
 
 
 async def test_a_window_refused_by_another_limit_is_skipped(

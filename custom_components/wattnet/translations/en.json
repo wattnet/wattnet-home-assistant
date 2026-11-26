@@ -141,6 +141,10 @@
     "api_unreachable": {
       "title": "Wattnet is not responding",
       "description": "Wattnet has not answered for more than an hour, so the data for {zone} is unavailable. Home Assistant keeps retrying and will recover on its own. If it persists, check your internet connection and the Wattnet status page."
+    },
+    "history_limited": {
+      "title": "Wattnet history limited by your access level",
+      "description": "The Wattnet credential of {zone} only reaches back to {oldest}, so the older days you asked for were not imported. The data from then on was imported as usual. To import more history, ask for the Research level in the developer portal."
     }
   }
 }

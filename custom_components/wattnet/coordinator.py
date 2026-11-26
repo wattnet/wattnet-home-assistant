@@ -54,12 +54,14 @@ from .const import (
     DEFAULT_BACKFILL_DAYS,
     DEFAULT_SCOPE,
     DEFAULT_UPDATE_INTERVAL,
+    DEVELOPER_PORTAL_URL,
     DOMAIN,
     FIRST_SYNC_SLACK,
     FREE_HISTORY_DAYS,
     GRID_LOOKBACK,
     HISTORY_LIMIT_CODE,
     ISSUE_API_UNREACHABLE,
+    ISSUE_HISTORY_LIMITED,
     METRICS,
     POLL_OFFSET_MINUTES,
     POLL_RETRY_DELAY,
@@ -171,6 +173,9 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
         self._last_success: datetime | None = None
         self._retry_unsub: CALLBACK_TYPE | None = None
         self._issue_id = f"{ISSUE_API_UNREACHABLE}_{entry.entry_id}"
+        self._history_issue_id = f"{ISSUE_HISTORY_LIMITED}_{entry.entry_id}"
+        # Oldest hour the last import could reach when the access level cut it.
+        self._history_limited_from: datetime | None = None
 
     # -- lifecycle -------------------------------------------------------------
 
@@ -211,6 +216,7 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
         def _unload() -> None:
             _stop()
             ir.async_delete_issue(self.hass, DOMAIN, self._issue_id)
+            ir.async_delete_issue(self.hass, DOMAIN, self._history_issue_id)
 
         return _unload
 
@@ -280,7 +286,13 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
             return await self._fetch(metric, start, end)
         except AccessLimitExceeded as err:
             oldest = oldest_allowed_start(now, FREE_HISTORY_DAYS)
-            if err.code == HISTORY_LIMIT_CODE and start < oldest < end:
+            if err.code == HISTORY_LIMIT_CODE and end <= oldest:
+                # Wholly older than the access level reaches: the window that
+                # crosses the limit tells it once, below.
+                _LOGGER.debug("No %s before %s for this access level", metric.key, end)
+                self._history_limited_from = oldest
+                return []
+            if err.code == HISTORY_LIMIT_CODE and start < oldest:
                 _LOGGER.warning(
                     "The access level of the credential does not reach %s for %s: "
                     "importing from %s",
@@ -288,6 +300,7 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
                     metric.key,
                     oldest,
                 )
+                self._history_limited_from = oldest
                 return await self._fetch_window(metric, oldest, end, now)
             _LOGGER.warning(
                 "Skipping %s from %s to %s: %s", metric.key, start, end, err
@@ -396,10 +409,29 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
         async with self._sync_lock:
             now = datetime.now(timezone.utc)
             grid_ids = await self.async_grid_statistic_ids()
+            self._history_limited_from = None
             await asyncio.gather(
                 *(self._async_sync_statistics(m, now, days, grid_ids) for m in METRICS)
             )
             await self._store.async_save(self._watermarks)
+            if self._history_limited_from is not None:
+                self._raise_history_issue(self._history_limited_from)
+
+    def _raise_history_issue(self, oldest: datetime) -> None:
+        """Show in Repairs that the access level cut the history imported."""
+        ir.async_create_issue(
+            self.hass,
+            DOMAIN,
+            self._history_issue_id,
+            is_fixable=False,
+            severity=ir.IssueSeverity.WARNING,
+            translation_key=ISSUE_HISTORY_LIMITED,
+            translation_placeholders={
+                "zone": f"{self.zone_name} ({self.zone})",
+                "oldest": oldest.strftime("%Y-%m-%d %H:%M UTC"),
+            },
+            learn_more_url=DEVELOPER_PORTAL_URL,
+        )
 
     async def async_reimport(self, days: int | None = None) -> None:
         """Forget the watermarks and import the last ``days`` days again."""
@@ -407,6 +439,8 @@ class WattnetCoordinator(DataUpdateCoordinator[dict[str, Point | None]]):
             self._sync_task.cancel()
             await asyncio.gather(self._sync_task, return_exceptions=True)
         self._watermarks = {}
+        # A new import decides again whether the history is cut.
+        ir.async_delete_issue(self.hass, DOMAIN, self._history_issue_id)
         await self._async_sync_all(days)
         self.async_update_listeners()
 
