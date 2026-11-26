@@ -1,5 +1,4 @@
 pytest-homeassistant-custom-component
 home-assistant-frontend
 pytest-cov
-# Published to PyPI soon; until then install it from the repository.
-wattnet-client @ git+https://github.com/wattnet/wattnet-client-python.git@main
+wattnet-client>=1.0.0

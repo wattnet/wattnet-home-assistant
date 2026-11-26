@@ -7,8 +7,9 @@ cd "$(dirname "$0")"
 
 CLIENT_DIR="${WATTNET_CLIENT_DIR:-../../wattnet-client-python}"
 
-# wattnet-client is not on PyPI yet: ship the local checkout (including
-# uncommitted changes) into the image build context.
+# Ship the local checkout of wattnet-client (including uncommitted changes)
+# into the image build context, to try changes of the client before they are
+# published on PyPI.
 rm -rf .client-src && mkdir .client-src
 git -C "$CLIENT_DIR" ls-files -co --exclude-standard -z \
   | tar --null -C "$CLIENT_DIR" -T - -cf - | tar -xf - -C .client-src
