@@ -41,13 +41,15 @@ The Wattnet integration brings the carbon footprint, water footprint, water impa
 
 ### Home Assistant Marketplace (recommended)
 
-1. In the Home Assistant Marketplace, open the menu and choose **Custom repositories**.
-2. Add `https://github.com/wattnet/wattnet-home-assistant` with the category **Integration**.
-3. Search for **Wattnet**, download it and restart Home Assistant.
+Requires Home Assistant 2026.11 or newer, where the Marketplace replaces HACS.
+
+1. Go to **Settings > Marketplace** and select **Add from link** in the upper right corner.
+2. Under **GitHub link**, enter `https://github.com/wattnet/wattnet-home-assistant` and select **Add**. The Marketplace asks you to connect GitHub if you have not done it yet.
+3. Open the **Wattnet** page, select **Install**, check the version and select **Install** again. Restart Home Assistant if the Marketplace asks you to.
 
 ### Manual
 
-Copy the `custom_components/wattnet` folder of this repository into the `custom_components` folder of your Home Assistant configuration and restart Home Assistant.
+On Home Assistant versions older than 2026.11, copy the `custom_components/wattnet` folder of this repository into the `custom_components` folder of your Home Assistant configuration and restart Home Assistant.
 
 ## Configuration
 
