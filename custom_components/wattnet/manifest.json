@@ -2,7 +2,7 @@
   "domain": "wattnet",
   "name": "Wattnet",
   "after_dependencies": ["energy", "frontend", "http", "lovelace"],
-  "codeowners": [],
+  "codeowners": ["@jaimeib"],
   "config_flow": true,
   "dependencies": ["recorder"],
   "documentation": "https://github.com/wattnet/wattnet-home-assistant",
